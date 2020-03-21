@@ -57,7 +57,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node,
       cmark_strbuf_puts(renderer->buffer, encoded);
       renderer->column += 3;
     } else if (cmark_ispunct((char)c)) {
-      cmark_render_ascii(renderer, "\\");
+      //cmark_render_ascii(renderer, "\\");
       cmark_render_code_point(renderer, c);
     } else { // render as entity
       snprintf(encoded, ENCODED_SIZE, "&#%d;", c);
@@ -232,29 +232,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-      marker_width = 4;
+      marker_width = 2;
     } else {
-      list_number = cmark_node_get_list_start(node->parent);
-      list_delim = cmark_node_get_list_delim(node->parent);
-      tmp = node;
-      while (tmp->prev) {
-        tmp = tmp->prev;
-        list_number += 1;
-      }
-      // we ensure a width of at least 4 so
-      // we get nice transition from single digits
-      // to double
-      snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
-               list_delim == CMARK_PAREN_DELIM ? ")" : ".",
-               list_number < 10 ? "  " : " ");
-      marker_width = (bufsize_t)strlen(listmarker);
+        marker_width = 4;
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-        LIT("  - ");
+        LIT("* ");
         renderer->begin_content = true;
       } else {
-        LIT(listmarker);
+        LIT("1.  ");
         renderer->begin_content = true;
       }
       for (i = marker_width; i--;) {
@@ -429,19 +416,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_LINK:
-    if (is_autolink(node)) {
-      if (entering) {
-        LIT("<");
-        if (strncmp(cmark_node_get_url(node), "mailto:", 7) == 0) {
-          LIT((const char *)cmark_node_get_url(node) + 7);
-        } else {
-          LIT((const char *)cmark_node_get_url(node));
-        }
-        LIT(">");
-        // return signal to skip contents of node...
-        return 0;
-      }
-    } else {
       if (entering) {
         LIT("[");
       } else {
@@ -454,7 +428,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
           LIT("\"");
         }
         LIT(")");
-      }
     }
     break;
 

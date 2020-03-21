@@ -356,7 +356,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
       cmark_strbuf_puts(html, "<a href=\"");
       if ((options & CMARK_OPT_UNSAFE) ||
             !(scan_dangerous_url(&node->as.link.url, 0))) {
-        houdini_escape_href(html, node->as.link.url.data,
+          escape_html(html, node->as.link.url.data,
                             node->as.link.url.len);
       }
       if (node->as.link.title.len) {

@@ -871,24 +871,6 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
 
   advance(subj); // advance past first <
 
-  // first try to match a URL autolink
-  matchlen = scan_autolink_uri(&subj->input, subj->pos);
-  if (matchlen > 0) {
-    contents = cmark_chunk_dup(&subj->input, subj->pos, matchlen - 1);
-    subj->pos += matchlen;
-
-    return make_autolink(subj, subj->pos - 1 - matchlen, subj->pos - 1, contents, 0);
-  }
-
-  // next try to match an email autolink
-  matchlen = scan_autolink_email(&subj->input, subj->pos);
-  if (matchlen > 0) {
-    contents = cmark_chunk_dup(&subj->input, subj->pos, matchlen - 1);
-    subj->pos += matchlen;
-
-    return make_autolink(subj, subj->pos - 1 - matchlen, subj->pos - 1, contents, 1);
-  }
-
   // finally, try to match an html tag
   matchlen = scan_html_tag(&subj->input, subj->pos);
   if (matchlen > 0) {
